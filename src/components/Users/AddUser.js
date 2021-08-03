@@ -1,22 +1,26 @@
-import React, { useState, Fragment } from "react";
+import React, { useState, Fragment, useRef } from "react";
 import Card from "../UI/Card";
 import Button from "../UI/Button";
 import cssClasses from "./AddUser.module.css";
 import ErrorModal from "../UI/ErrorModal";
 const AddUser = (props) => {
-  // useState for username.
-  const [enteredUsername, setEnteredUsername] = useState("");
-  // useState for userage
-  const [enteredUserage, setEnteredUserage] = useState("");
+  // useRef for username.
+  const enteredUsername = useRef();
+  // useRef for userage
+  const enteredUserage = useRef();
   // userState for Modal
   const [error, setError] = useState();
 
   // useradd handler
   const addUserHandler = (event) => {
     event.preventDefault();
+
+    // the below variables will store the current values of the objects.
+    const userName = enteredUsername.current.value;
+    const userAge = enteredUserage.current.value;
     if (
-      enteredUsername.trim().length === 0 ||
-      enteredUserage.trim().length === 0
+      userName.trim().length === 0 ||
+      userAge.trim().length === 0
     ) {
       setError({
         title: "Invalid Input",
@@ -24,7 +28,7 @@ const AddUser = (props) => {
       });
       return;
     }
-    if (+enteredUserage < 1) {
+    if (+userAge < 1) {
       setError({
         title: "Invalid Age",
         message: "Please Enter a valid age (> 0).",
@@ -32,19 +36,12 @@ const AddUser = (props) => {
       return;
     }
 
-    props.onAddUser(enteredUsername, enteredUserage);
-    setEnteredUsername("");
-    setEnteredUserage("");
+    props.onAddUser(userName, userAge);
+    // used refs for reset the value but it is not recommended insted you can use useState
+    enteredUsername.current.value = '';
+    enteredUserage.current.value = '';
   };
 
-  // user name input handler
-  const usernameChangeHandler = (event) => {
-    setEnteredUsername(event.target.value);
-  };
-  // user age input handler
-  const userageChangeHandler = (event) => {
-    setEnteredUserage(event.target.value);
-  };
 
   // error handler that will set the error state to null so that the error modal will dissappear
   const errorHandler = () => {
@@ -66,15 +63,13 @@ const AddUser = (props) => {
           <input
             id="username"
             type="text"
-            value={enteredUsername}
-            onChange={usernameChangeHandler}
+            ref={enteredUsername}
           />
           <label htmlFor="age">Age (In Years)</label>
           <input
             id="age"
             type="number"
-            value={enteredUserage}
-            onChange={userageChangeHandler}
+            ref={enteredUserage}
           />
           <Button type="submit">Add User</Button>
         </form>
